@@ -34,6 +34,8 @@ current_state = MAIN_MENU  # 初始状态为主菜单
 # 游戏设置
 difficulty = 2    # 默认难度（1-3）
 sound_enabled = True  # 音效开关
+music_enabled = True  # 背景音乐开关
+music_enabled = True  # 背景音乐开关
 
 # 高分记录
 def load_highscore():
@@ -53,7 +55,8 @@ highscore = load_highscore()  # 加载最高分
 sounds = {
     'eat': None,
     'game_over': None,
-    'menu_select': None
+    'menu_select': None,
+    'background_music': None
 }
 
 try:
@@ -61,9 +64,21 @@ try:
     sounds['eat'] = pygame.mixer.Sound('sounds/eat.wav')
     sounds['game_over'] = pygame.mixer.Sound('sounds/game_over.wav')
     sounds['menu_select'] = pygame.mixer.Sound('sounds/menu_select.wav')
+    sounds['background_music'] = pygame.mixer.Sound('sounds/background_music.wav')
 except Exception as e:
     print(f"无法加载音效文件: {e}")
     sound_enabled = False  # 如果加载失败，关闭音效
+    music_enabled = False  # 如果加载失败，关闭背景音乐
+
+# 背景音乐控制函数
+def play_background_music():
+    if music_enabled and sounds['background_music']:
+        sounds['background_music'].stop()  # 先停止，防止重叠播放
+        sounds['background_music'].play(-1)  # -1表示循环播放
+
+def stop_background_music():
+    if sounds['background_music']:
+        sounds['background_music'].stop()
 
 # 字体设置
 try:
@@ -80,7 +95,7 @@ except:
 
 # 菜单选项
 main_menu_items = ["开始游戏", "设置", "退出游戏"]
-settings_menu_items = ["难度: 简单", "音效: 开", "返回"]
+settings_menu_items = ["难度: 简单", "音效: 开", "背景音乐: 开", "返回"]
 selected_main_item = 0
 selected_settings_item = 0
 
@@ -205,9 +220,11 @@ def draw_settings_menu():
         difficulty_text = "难度: 困难"
     
     sound_text = "音效: 开" if sound_enabled else "音效: 关"
+    music_text = "背景音乐: 开" if music_enabled else "背景音乐: 关"
     
     settings_menu_items[0] = difficulty_text
     settings_menu_items[1] = sound_text
+    settings_menu_items[2] = music_text
     
     # 绘制设置选项
     for i, item in enumerate(settings_menu_items):
@@ -341,6 +358,9 @@ def start_game():
     current_state = GAME
     selected_main_item = 0  # 重置选择
     
+    # 播放背景音乐
+    play_background_music()
+    
     snake = Snake()
     food = Food()
     clock = pygame.time.Clock()
@@ -370,6 +390,7 @@ def start_game():
                         pause_surface = draw_pause_menu(snake, food)  # 创建静态暂停画面
                     elif event.key == pygame.K_ESCAPE:
                         current_state = MAIN_MENU
+                        stop_background_music()  # 停止背景音乐
                         return
                         
                 elif current_state == GAME_PAUSED:
@@ -391,9 +412,11 @@ def start_game():
                             food = Food()
                         else:  # 返回主菜单
                             current_state = MAIN_MENU
+                            stop_background_music()  # 停止背景音乐
                             return
                     elif event.key == pygame.K_ESCAPE:
                         current_state = MAIN_MENU
+                        stop_background_music()  # 停止背景音乐
                         return
         
         # 游戏逻辑
@@ -401,6 +424,7 @@ def start_game():
             # 移动蛇
             if not snake.move():
                 current_state = GAME_OVER  # 切换到游戏结束状态
+                stop_background_music()  # 停止背景音乐
                 if sound_enabled and sounds['game_over']:
                     sounds['game_over'].play()
                 
@@ -468,6 +492,13 @@ def main():
                             difficulty = max(1, difficulty - 1)
                         elif selected_settings_item == 1:  # 音效
                             sound_enabled = not sound_enabled
+                        elif selected_settings_item == 2:  # 背景音乐
+                            global music_enabled
+                            music_enabled = not music_enabled
+                            if music_enabled:
+                                play_background_music()
+                            else:
+                                stop_background_music()
                     elif event.key == pygame.K_RIGHT:
                         if sound_enabled and sounds['menu_select']:
                             sounds['menu_select'].play()
@@ -475,6 +506,12 @@ def main():
                             difficulty = min(3, difficulty + 1)
                         elif selected_settings_item == 1:  # 音效
                             sound_enabled = not sound_enabled
+                        elif selected_settings_item == 2:  # 背景音乐
+                            music_enabled = not music_enabled
+                            if music_enabled:
+                                play_background_music()
+                            else:
+                                stop_background_music()
                     elif event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
                         if selected_settings_item == 2 or event.key == pygame.K_ESCAPE:  # 返回
                             current_state = MAIN_MENU

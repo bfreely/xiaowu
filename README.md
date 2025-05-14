@@ -9,7 +9,7 @@
 ```bash
 pip install -r requirements.txt
 ```
-
+      
 ## 运行游戏
 
 运行以下命令启动游戏：
@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-
+     
 ## 操作说明
 
 ### 主菜单

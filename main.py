@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import pygame
 import sys
+import os
+import sys
 import math
 import random
 import time
@@ -51,6 +53,16 @@ def save_highscore(score):
 
 highscore = load_highscore()  # 加载最高分
 
+def resource_path(relative_path):
+    """获取打包后资源的绝对路径"""
+    try:
+        # PyInstaller创建的临时文件夹
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # 加载音效
 sounds = {
     'eat': None,
@@ -61,10 +73,10 @@ sounds = {
 
 try:
     # 尝试加载音效文件
-    sounds['eat'] = pygame.mixer.Sound('sounds/eat.wav')
-    sounds['game_over'] = pygame.mixer.Sound('sounds/game_over.wav')
-    sounds['menu_select'] = pygame.mixer.Sound('sounds/menu_select.wav')
-    sounds['background_music'] = pygame.mixer.Sound('sounds/background_music.wav')
+    sounds['eat'] = pygame.mixer.Sound(resource_path('sounds/eat.wav'))
+    sounds['game_over'] = pygame.mixer.Sound(resource_path('sounds/game_over.wav'))
+    sounds['menu_select'] = pygame.mixer.Sound(resource_path('sounds/menu_select.wav'))
+    sounds['background_music'] = pygame.mixer.Sound(resource_path('sounds/background_music.wav'))
 except Exception as e:
     print(f"无法加载音效文件: {e}")
     sound_enabled = False  # 如果加载失败，关闭音效

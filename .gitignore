@@ -1,0 +1,13 @@
+# PyInstaller生成的文件
+dist/
+build/
+*.spec
+
+# Python编译文件
+__pycache__/
+*.py[cod]
+
+# 其他不需要的文件
+*.log
+*.bak
+*.swp
